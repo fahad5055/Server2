@@ -10,11 +10,13 @@ app.use(cors());
 
 const usersRoute = require("./Route/UsersRoute");
 const productRoute = require("./Route/ProductRoute");
+const CategoryRoute = require("./Route/CategoryRoute");
 const tokenVerify = require("./Middleware/verifyToken");
 
 app.get("/api/verify", tokenVerify);
 app.use("/api/users", usersRoute);
 app.use("/api/product", productRoute);
+app.use("/api/category", CategoryRoute);
 
 app.get("/", (req, res) => {
   res.send("<h1>We are Running & continue</h1>");
