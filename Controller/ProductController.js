@@ -1,136 +1,200 @@
+const macaddress = require("macaddress");
 const Products = require("../Model/ProductModel");
+const Category = require("../Model/CategoryModel"); // adjust path accordingly
 
-// Create User
 const createProduct = async (req, res) => {
-    try {
-        const {
-            name,
-            productCategory,
-            productRegPrice,
-            productDiscountPrice,
-            productDetails, } = req.body;
+  try {
+    const {
+      category,
+      productNameEnglish,
+      productNameBangla,
+      productSlug,
+      brand,
+      featured,
+      Status,
+      Details,
+      regularPrice,
+      discountPrice,
+      warranty,
+      expiryDate,
+      quantity,
+      code,
+      returnPolicy,
+      Images,
+    } = req.body;
 
-        if (!name ||
-            !productCategory ||
-            !productRegPrice ||
-            !productDiscountPrice ||
-            !productDetails) {
-            return res.status(400).json({ message: "fully fill your information" });
-        }
-
-        const productObj = new Products({
-            name,
-            productCategory,
-            productRegPrice,
-            productDiscountPrice,
-            productDetails
-        });
-
-        await productObj.save();
-
-        res.status(201).json({
-            message: "product created successfully",
-            productObj,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "An error occurred while creating the user.",
-            error: error.message,
-        });
+    // Validate required fields
+    if (
+      !category ||
+      !productNameEnglish ||
+      !productNameBangla ||
+      !brand ||
+      !Status ||
+      !regularPrice ||
+      !expiryDate ||
+      !quantity ||
+      !returnPolicy
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Please fill in all required fields." });
     }
+
+    const categoryData = await Category.findById(category);
+    if (!categoryData) {
+      return res.status(400).json({ message: "Invalid category ID" });
+    }
+    // Get IP and MAC
+    const ip =
+      req.headers["x-forwarded-for"] ||
+      req.connection?.remoteAddress ||
+      req.socket?.remoteAddress ||
+      req.ip;
+
+    const mac = await macaddress.one();
+
+    // Create product object
+    const productObj = new Products({
+      category, // original ObjectId
+      categoryName: categoryData.name,
+      productNameEnglish,
+      productNameBangla,
+      productSlug,
+      brand,
+      featured,
+      Status,
+      Details,
+      regularPrice,
+      discountPrice,
+      warranty,
+      expiryDate,
+      quantity,
+      code,
+      returnPolicy,
+      Images,
+      ipAddress: ip,
+      macAddress: mac,
+    });
+
+    await productObj.save();
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product: productObj,
+    });
+  } catch (error) {
+    console.error("Create product error:", error);
+    res.status(500).json({
+      message: "An error occurred while creating the product.",
+      error: error.message,
+    });
+  }
 };
 
 // Get Users
 const getProduct = async (req, res) => {
-    try {
-        const productsObj = await Products.find();
-        res.status(200).json(productsObj);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "An error occurred while fetching users.",
-            error: error.message,
-        });
-    }
+  try {
+    const productsObj = await Products.find().populate("category");
+    res.status(200).json(productsObj);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while fetching users.",
+      error: error.message,
+    });
+  }
 };
 
 // Delete User
 const deleteProduct = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        const deleteproducts = await Products.findByIdAndDelete({ _id: id });
-        if (!deleteproducts) {
-            return res.status(404).json({ message: "Products not found." });
-        }
-
-        res.status(200).json({
-            message: "Products deleted successfully",
-            deleteproducts,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "An error occurred while deleting the user.",
-            error: error.message,
-        });
+  try {
+    const deleteproducts = await Products.findByIdAndDelete({ _id: id });
+    if (!deleteproducts) {
+      return res.status(404).json({ message: "Products not found." });
     }
+
+    res.status(200).json({
+      message: "Products deleted successfully",
+      deleteproducts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while deleting the user.",
+      error: error.message,
+    });
+  }
 };
 
 // Update User
 const updateProduct = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        const updatedProducts = await Products.findByIdAndUpdate(id, req.body,
-            { new: true });
+  try {
+    const ip =
+      req.headers["x-forwarded-for"] ||
+      req.connection.remoteAddress ||
+      req.socket?.remoteAddress ||
+      req.ip;
 
-        if (!updatedProducts) {
-            return res.status(404).json({ message: "Products not found." });
-        }
+    const mac = await macaddress.one();
 
-        res.status(200).json({
-            message: "Products updated successfully",
-            updatedProducts,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "An error occurred while updating the user.",
-            error: error.message,
-        });
+    const updateData = {
+      ...req.body,
+      ipAddress: ip,
+      macAddress: mac,
+    };
+    const updatedProducts = await Products.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    if (!updatedProducts) {
+      return res.status(404).json({ message: "Products not found." });
     }
+
+    res.status(200).json({
+      message: "Products updated successfully",
+      updatedProducts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while updating the user.",
+      error: error.message,
+    });
+  }
 };
 
-// Login
+// getonecategory
 const getOneProduct = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        const Products = await Products.findByIdAndUpdate({ _id: id });
+  try {
+    const Products = await Products.findByIdAndUpdate({ _id: id });
 
-        if (!Products) {
-            return res.status(404).json({ message: "Products not found." });
-        }
-
-        res.status(200).json({
-            message: "Products information updated successfully",
-            Products,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "An error occurred while updating the user.",
-            error: error.message,
-        });
+    if (!Products) {
+      return res.status(404).json({ message: "Products not found." });
     }
+
+    res.status(200).json({
+      message: "Products information updated successfully",
+      Products,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while updating the user.",
+      error: error.message,
+    });
+  }
 };
 
 module.exports = {
-    createProduct,
-    getProduct,
-    getOneProduct,
-    deleteProduct,
-    updateProduct,
+  createProduct,
+  getProduct,
+  getOneProduct,
+  deleteProduct,
+  updateProduct,
 };

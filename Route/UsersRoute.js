@@ -3,10 +3,13 @@ const route = express.Router();
 
 // // import controllar
 const {
-    createUser,
-    getUser,
-    updateUser,
-    login,
+  createUser,
+  getUser,
+  updateUser,
+  login,
+  verifyOtp,
+  forgotPassword,
+  resetPassword,
 } = require("../Controller/UsersController");
 
 // // api

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const { Schema } = mongoose;
 
 const categoryModel = new Schema(
@@ -16,6 +15,12 @@ const categoryModel = new Schema(
       type: String,
     },
     coverImage: {
+      type: String,
+    },
+    macAddress: {
+      type: String,
+    },
+    ipAddress: {
       type: String,
     },
   },
