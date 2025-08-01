@@ -171,16 +171,28 @@ const updateProduct = async (req, res) => {
 const getOneProduct = async (req, res) => {
   const { id } = req.params;
 
-  try {
-    const Products = await Products.findByIdAndUpdate({ _id: id });
+  console.log(id);
 
-    if (!Products) {
+  try {
+    const categoryId = await Category.findOne({ slug: id });
+
+    console.log(categoryId);
+    console.log(categoryId._id);
+
+    const product = await Products.find({
+      category: categoryId._id,
+    }).populate("category");
+
+    console.log(product);
+
+    if (!product) {
       return res.status(404).json({ message: "Products not found." });
     }
 
     res.status(200).json({
       message: "Products information updated successfully",
-      Products,
+      product,
+      categoryId,
     });
   } catch (error) {
     console.error(error);

@@ -8,10 +8,15 @@ const {
   updateCategory,
 } = require("../Controller/categoryController");
 
+const { getOneProduct } = require("../Controller/ProductController");
+
 // // api
 route.get("/", getCategory);
 route.post("/", createCategory);
 route.patch("/:id", updateCategory);
+
+route.get("/category", getCategory);
+route.get("/product/:id", getOneProduct);
 
 // export
 module.exports = route;

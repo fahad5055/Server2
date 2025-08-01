@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 
+const port = 5000;
+
 const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
@@ -14,18 +16,22 @@ const productRoute = require("./Route/ProductRoute");
 const CategoryRoute = require("./Route/CategoryRoute");
 const tokenVerify = require("./Middleware/verifyToken");
 
+// admin panel api
 app.get("/api/verify", tokenVerify);
 app.use("/api/users", usersRoute);
 app.use("/api/product", productRoute);
 app.use("/api/category", CategoryRoute);
+
+// website api
+app.use("/api/web", CategoryRoute);
 
 app.get("/", (req, res) => {
   res.send("<h1>We are Running & continue</h1>");
 });
 
 // Server code
-app.listen(5000, () => {
-  console.log("App is Running");
+app.listen(port, () => {
+  console.log(`App is Running http://localhost:${port}`);
   mongoose
     .connect(
       "mongodb+srv://class01:bZB52bi81OPOqY5I@cluster0.mbfkc.mongodb.net/ecommerce"
