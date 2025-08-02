@@ -91,7 +91,7 @@ const createProduct = async (req, res) => {
   }
 };
 
-// Get Users
+// Get product
 const getProduct = async (req, res) => {
   try {
     const productsObj = await Products.find().populate("category");
@@ -105,7 +105,7 @@ const getProduct = async (req, res) => {
   }
 };
 
-// Delete User
+// Delete product
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
 
@@ -128,7 +128,7 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-// Update User
+// Update product
 const updateProduct = async (req, res) => {
   const { id } = req.params;
 
@@ -171,13 +171,34 @@ const updateProduct = async (req, res) => {
 const getOneProduct = async (req, res) => {
   const { id } = req.params;
 
-  console.log(id);
+  try {
+    const product = await Products.findOne({
+      productSlug: id,
+    }).populate("category");
+
+    if (!product) {
+      return res.status(404).json({ message: "Products not found." });
+    }
+
+    res.status(200).json({
+      message: "Products information updated successfully",
+      product,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while updating the user.",
+      error: error.message,
+    });
+  }
+};
+
+// getonecategory
+const getCategoryProduct = async (req, res) => {
+  const { id } = req.params;
 
   try {
     const categoryId = await Category.findOne({ slug: id });
-
-    console.log(categoryId);
-    console.log(categoryId._id);
 
     const product = await Products.find({
       category: categoryId._id,
@@ -209,4 +230,5 @@ module.exports = {
   getOneProduct,
   deleteProduct,
   updateProduct,
+  getCategoryProduct,
 };

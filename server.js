@@ -23,7 +23,8 @@ app.use("/api/product", productRoute);
 app.use("/api/category", CategoryRoute);
 
 // website api
-app.use("/api/web", CategoryRoute);
+const WebRoute = require("./WebRoute");
+app.use("/api/web", WebRoute);
 
 app.get("/", (req, res) => {
   res.send("<h1>We are Running & continue</h1>");
